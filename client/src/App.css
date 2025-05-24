@@ -1,0 +1,17 @@
+.App {
+  text-align: center;
+}
+
+.navbar-dark .nav-link {
+  color: white !important;
+  transition: color 0.3s ease;
+}
+
+.navbar-dark .nav-link:hover {
+  color: #00bcd4 !important; /* Couleur au survol (bleu clair) */
+}
+
+.navbar-dark .nav-link.active {
+  font-weight: bold;
+  border-bottom: 2px solid #00bcd4; /* Soulignement de l’élément actif */
+}
