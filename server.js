@@ -31,9 +31,12 @@ app.use("/api/product", require('./routes/product.route'))
 app.use("/api/panier" , require('./routes/panier.route'))
 
 
+app.use((req,res) => {
+    res.send("API is running ...")
+})
 
 //03 PORT
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 7666
 //04 Activer le port (listen): C’est la méthode qui démarre le serveur Express.
 //app.listen(port, callback)
 app.listen(PORT, (err)=>{
