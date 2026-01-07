@@ -8,12 +8,11 @@ pipeline {
         booleanParam(name: 'SKIP_PUSH', defaultValue: false, description: 'Skip pushing images to Docker Hub')
     }
 
-   environment {
+    environment {
         REGISTRY = 'docker.io'
         IMAGE_BACKEND = "${REGISTRY}/amirzouari15/projet-e-commerce-backend:${BUILD_NUMBER}"
         IMAGE_FRONTEND = "${REGISTRY}/amirzouari15/projet-e-commerce-frontend:${BUILD_NUMBER}"
     }
-
 
     stages {
         stage('Checkout') {
@@ -35,6 +34,20 @@ pipeline {
             steps {
                 echo "Building frontend image: ${env.IMAGE_FRONTEND}"
                 sh "docker build -t ${env.IMAGE_FRONTEND} client"
+            }
+        }
+
+        stage('Scan Backend Image with Trivy') {
+            steps {
+                echo "Scanning backend image with Trivy..."
+                sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${env.IMAGE_BACKEND}"
+            }
+        }
+
+        stage('Scan Frontend Image with Trivy') {
+            steps {
+                echo "Scanning frontend image with Trivy..."
+                sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${env.IMAGE_FRONTEND}"
             }
         }
 
@@ -66,7 +79,7 @@ pipeline {
             sh 'docker system prune -af || true'
         }
         success {
-            echo 'Pipeline succeeded: images built and pushed.'
+            echo 'Pipeline succeeded: images built, scanned, and pushed.'
         }
         failure {
             echo 'Pipeline failed. Check the logs above.'
