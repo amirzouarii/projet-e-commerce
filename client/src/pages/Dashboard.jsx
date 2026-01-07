@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import ListUsers from '../components/ListUsers'
 import { useDispatch } from 'react-redux'
 import { getUsers } from '../JS/actions/userAction';
+import DashboardBI from '../components/DashboardBI';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -12,6 +13,7 @@ const Dashboard = () => {
   return (
     <div>
         <ListUsers />
+        <DashboardBI />
     </div>
   )
 }

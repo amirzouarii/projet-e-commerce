@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:6.0
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - PORT=7666
+      - DB_URI=mongodb://mongo:27017/ecommerce
+      - JWT_SECRET=changeme
+    ports:
+      - "7666:7666"
+    depends_on:
+      - mongo
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:80" # mappe le port nginx (80) sur le 3000 local
+    depends_on:
+      - backend
+
+volumes:
+  mongodb_data:
+    driver: local
