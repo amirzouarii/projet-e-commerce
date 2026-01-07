@@ -8,11 +8,12 @@ pipeline {
         booleanParam(name: 'SKIP_PUSH', defaultValue: false, description: 'Skip pushing images to Docker Hub')
     }
 
-    environment {
+   environment {
         REGISTRY = 'docker.io'
-        IMAGE_BACKEND = "${REGISTRY}/amir/projet-e-commerce-backend:${BUILD_NUMBER}"
-        IMAGE_FRONTEND = "${REGISTRY}/amir/projet-e-commerce-frontend:${BUILD_NUMBER}"
+        IMAGE_BACKEND = "${REGISTRY}/amirzouari15/projet-e-commerce-backend:${BUILD_NUMBER}"
+        IMAGE_FRONTEND = "${REGISTRY}/amirzouari15/projet-e-commerce-frontend:${BUILD_NUMBER}"
     }
+
 
     stages {
         stage('Checkout') {
