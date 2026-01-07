@@ -1,24 +1,18 @@
-// Jenkinsfile (Declarative Pipeline Docker-in-Docker)
+// Jenkinsfile - Pipeline complet pour projet e-commerce
 pipeline {
-    agent {
-        dockerContainer(
-            image: 'docker:24.0-dind',
-            args: '-v /var/run/docker.sock:/var/run/docker.sock'
-        )
-    }
-
+    agent any
     options { timestamps() }
 
     parameters {
-        string(name: 'DOCKER_REPO', defaultValue: 'your-dockerhub-username/projet-e-commerce', description: 'Docker Hub repo (username/repo)')
+        string(name: 'DOCKER_REPO', defaultValue: 'amir/projet-e-commerce', description: 'Docker Hub repo (username/repo)')
         string(name: 'IMAGE_TAG', defaultValue: "${env.BUILD_NUMBER}", description: 'Tag to apply to images')
         booleanParam(name: 'SKIP_PUSH', defaultValue: false, description: 'Skip pushing images to Docker Hub')
     }
 
     environment {
         REGISTRY = 'docker.io'
-        BACKEND_IMAGE = "${env.REGISTRY}/${params.DOCKER_REPO}-backend:${params.IMAGE_TAG}"
-        FRONTEND_IMAGE = "${env.REGISTRY}/${params.DOCKER_REPO}-frontend:${params.IMAGE_TAG}"
+        BACKEND_IMAGE = "${REGISTRY}/${params.DOCKER_REPO}-backend:${params.IMAGE_TAG}"
+        FRONTEND_IMAGE = "${REGISTRY}/${params.DOCKER_REPO}-frontend:${params.IMAGE_TAG}"
     }
 
     stages {
@@ -30,12 +24,14 @@ pipeline {
 
         stage('Build Backend Image') {
             steps {
+                echo "Building backend image: ${env.BACKEND_IMAGE}"
                 sh "docker build -t ${env.BACKEND_IMAGE} -f Dockerfile ."
             }
         }
 
         stage('Build Frontend Image') {
             steps {
+                echo "Building frontend image: ${env.FRONTEND_IMAGE}"
                 sh "docker build -t ${env.FRONTEND_IMAGE} -f client/Dockerfile client"
             }
         }
@@ -59,8 +55,11 @@ pipeline {
             when { expression { return !params.SKIP_PUSH } }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    echo "Logging in to Docker Hub..."
                     sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                    echo "Pushing backend image..."
                     sh "docker push ${env.BACKEND_IMAGE}"
+                    echo "Pushing frontend image..."
                     sh "docker push ${env.FRONTEND_IMAGE}"
                 }
             }
@@ -69,7 +68,7 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning up local images (optional)'
+            echo 'Cleaning up local images...'
             sh "docker image rm -f ${env.BACKEND_IMAGE} || true"
             sh "docker image rm -f ${env.FRONTEND_IMAGE} || true"
             sh 'docker logout || true'
