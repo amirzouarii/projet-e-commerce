@@ -1,15 +1,11 @@
-// Jenkinsfile (Declarative Pipeline)
-// - Build images (backend + frontend)
-// - Scan images using Trivy (via Docker container)
-// - Push images to Docker Hub if scans are clean
-
+// Jenkinsfile (Declarative Pipeline Docker-in-Docker)
 pipeline {
     agent {
-    dockerContainer('docker:24.0-dind') {
-        args '-v /var/run/docker.sock:/var/run/docker.sock'
+        dockerContainer(
+            image: 'docker:24.0-dind',
+            args: '-v /var/run/docker.sock:/var/run/docker.sock'
+        )
     }
-}
-
 
     options { timestamps() }
 
@@ -27,22 +23,20 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            steps { checkout scm }
+            steps {
+                checkout scm
+            }
         }
 
         stage('Build Backend Image') {
             steps {
-                script {
-                    sh "docker build -t ${env.BACKEND_IMAGE} -f Dockerfile ."
-                }
+                sh "docker build -t ${env.BACKEND_IMAGE} -f Dockerfile ."
             }
         }
 
         stage('Build Frontend Image') {
             steps {
-                script {
-                    sh "docker build -t ${env.FRONTEND_IMAGE} -f client/Dockerfile client"
-                }
+                sh "docker build -t ${env.FRONTEND_IMAGE} -f client/Dockerfile client"
             }
         }
 
@@ -50,10 +44,12 @@ pipeline {
             steps {
                 script {
                     def images = [env.BACKEND_IMAGE, env.FRONTEND_IMAGE]
-                    for (i = 0; i < images.size(); i++) {
-                        def img = images[i]
+                    for (img in images) {
                         echo "Scanning ${img} with Trivy (fail on HIGH/CRITICAL vulnerabilities)..."
-                        sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image --exit-code 1 --severity HIGH,CRITICAL ${img}"
+                        sh """
+                        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy image --exit-code 1 --severity HIGH,CRITICAL ${img}
+                        """
                     }
                 }
             }
@@ -62,12 +58,10 @@ pipeline {
         stage('Push to Docker Hub') {
             when { expression { return !params.SKIP_PUSH } }
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                        sh "docker push ${env.BACKEND_IMAGE}"
-                        sh "docker push ${env.FRONTEND_IMAGE}"
-                    }
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                    sh "docker push ${env.BACKEND_IMAGE}"
+                    sh "docker push ${env.FRONTEND_IMAGE}"
                 }
             }
         }
