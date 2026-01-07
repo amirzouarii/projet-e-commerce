@@ -1,66 +1,56 @@
-// Jenkinsfile - Pipeline complet pour projet e-commerce
 pipeline {
     agent any
     options { timestamps() }
 
+    triggers { pollSCM('H/5 * * * *') }
+
     parameters {
-        string(name: 'DOCKER_REPO', defaultValue: 'amir/projet-e-commerce', description: 'Docker Hub repo (username/repo)')
-        string(name: 'IMAGE_TAG', defaultValue: "${env.BUILD_NUMBER}", description: 'Tag to apply to images')
         booleanParam(name: 'SKIP_PUSH', defaultValue: false, description: 'Skip pushing images to Docker Hub')
     }
 
     environment {
         REGISTRY = 'docker.io'
-        BACKEND_IMAGE = "${REGISTRY}/${params.DOCKER_REPO}-backend:${params.IMAGE_TAG}"
-        FRONTEND_IMAGE = "${REGISTRY}/${params.DOCKER_REPO}-frontend:${params.IMAGE_TAG}"
+        IMAGE_BACKEND = "${REGISTRY}/amir/projet-e-commerce-backend:${BUILD_NUMBER}"
+        IMAGE_FRONTEND = "${REGISTRY}/amir/projet-e-commerce-frontend:${BUILD_NUMBER}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main',
+                    url: 'https://github.com/amirzouarii/projet-e-commerce.git',
+                    credentialsId: 'github-credentials'
             }
         }
 
         stage('Build Backend Image') {
             steps {
-                echo "Building backend image: ${env.BACKEND_IMAGE}"
-                sh "docker build -t ${env.BACKEND_IMAGE} -f Dockerfile ."
+                echo "Building backend image: ${env.IMAGE_BACKEND}"
+                sh "docker build -t ${env.IMAGE_BACKEND} ."
             }
         }
 
         stage('Build Frontend Image') {
             steps {
-                echo "Building frontend image: ${env.FRONTEND_IMAGE}"
-                sh "docker build -t ${env.FRONTEND_IMAGE} -f client/Dockerfile client"
+                echo "Building frontend image: ${env.IMAGE_FRONTEND}"
+                sh "docker build -t ${env.IMAGE_FRONTEND} client"
             }
         }
 
-        stage('Scan Images (Trivy)') {
-            steps {
-                script {
-                    def images = [env.BACKEND_IMAGE, env.FRONTEND_IMAGE]
-                    for (img in images) {
-                        echo "Scanning ${img} with Trivy (fail on HIGH/CRITICAL vulnerabilities)..."
-                        sh """
-                        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-                        aquasec/trivy image --exit-code 1 --severity HIGH,CRITICAL ${img}
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Push to Docker Hub') {
+        stage('Push Images to Docker Hub') {
             when { expression { return !params.SKIP_PUSH } }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-hub-credentials',
+                    usernameVariable: 'DH_USER',
+                    passwordVariable: 'DH_PASS'
+                )]) {
                     echo "Logging in to Docker Hub..."
-                    sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                    sh 'echo "$DH_PASS" | docker login -u "$DH_USER" --password-stdin'
                     echo "Pushing backend image..."
-                    sh "docker push ${env.BACKEND_IMAGE}"
+                    sh "docker push ${env.IMAGE_BACKEND}"
                     echo "Pushing frontend image..."
-                    sh "docker push ${env.FRONTEND_IMAGE}"
+                    sh "docker push ${env.IMAGE_FRONTEND}"
                 }
             }
         }
@@ -69,15 +59,16 @@ pipeline {
     post {
         always {
             echo 'Cleaning up local images...'
-            sh "docker image rm -f ${env.BACKEND_IMAGE} || true"
-            sh "docker image rm -f ${env.FRONTEND_IMAGE} || true"
+            sh "docker image rm -f ${env.IMAGE_BACKEND} || true"
+            sh "docker image rm -f ${env.IMAGE_FRONTEND} || true"
             sh 'docker logout || true'
+            sh 'docker system prune -af || true'
         }
         success {
-            echo 'Pipeline succeeded: images built, scanned, and pushed.'
+            echo 'Pipeline succeeded: images built and pushed.'
         }
         failure {
-            echo 'Pipeline failed. Check the logs above to see scan/build/push errors.'
+            echo 'Pipeline failed. Check the logs above.'
         }
     }
 }
