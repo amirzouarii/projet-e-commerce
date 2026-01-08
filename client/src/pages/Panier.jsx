@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getPanier ,viderPanier, viderPanierBackend} from '../JS/actions/panierAction';
+import { getPanier, viderPanierBackend } from '../JS/actions/panierAction';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { Form } from 'react-bootstrap';
@@ -98,8 +98,9 @@ const Panier = () => {
           <Button
   variant="primary"
   onClick={() => {
-    navigate('/')
+    dispatch(viderPanierBackend());
     handleClose();
+    navigate('/');
   }} >
             Confirmer
           </Button>

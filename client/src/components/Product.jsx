@@ -32,7 +32,8 @@ const Product = ({ product, all }) => {
         <div>
           <Card.Title>{product.title}</Card.Title>
           <Card.Text>
-            <p>Marque :  {product.brand}</p>  <br />
+            <p>Marque :  {product.brand}</p>
+            <p>Catégorie : {product.category?.name || (product.category || '—')}</p>
             <strong>Prix :</strong> {product.price} €
 
           </Card.Text>

@@ -1,0 +1,5 @@
+export const LOAD_PROFILE = 'LOAD_PROFILE';
+export const GET_PROFILE = 'GET_PROFILE';
+export const CREATE_PROFILE = 'CREATE_PROFILE';
+export const UPDATE_PROFILE = 'UPDATE_PROFILE';
+export const FAIL_PROFILE = 'FAIL_PROFILE';

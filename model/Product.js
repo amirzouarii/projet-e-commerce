@@ -20,20 +20,26 @@ const productSchema = new mongoose.Schema(
         },
         price : Number,
         addedBy: {
-            type: mongoose.Schema.Types.ObjectId,  // pour faire la relation enbtre les deux tables 
-            ref:"User"
+            type: mongoose.Schema.Types.ObjectId,  // pour faire la relation entre les deux tables 
+            ref: "User"
         },
+        category: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Category'
+        },
+        category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+
         brand: {
-            type:String,
+            type: String,
             required: true,
         }
     }, {
-        timeseries: true,
+        timestamps: true,
     }
 );
 
 //faire la relation avec JS
-const Product = mongoose.model("product", productSchema)
+const Product = mongoose.model('Product', productSchema)
 
-module.exports=Product;
+module.exports = Product;
 

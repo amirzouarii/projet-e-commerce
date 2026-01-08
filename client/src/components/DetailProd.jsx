@@ -58,6 +58,9 @@ const handleAddToCart = async () => {
       <p>
         <strong>Prix :</strong> {product.price} €
       </p>
+      <p>
+        <strong>Catégorie :</strong> {product.category?.name || (product.category || '—')}
+      </p>
 
        <button  onClick={handleAddToCart}>
         🛒 Ajouter au panier

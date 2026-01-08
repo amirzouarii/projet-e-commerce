@@ -12,7 +12,7 @@ exports.addProduct = async(req,res) => {
 
 exports.getAllProd = async(req,res) => {
     try {
-        const listProduct = await Product.find().sort({ brand: 1 }); // tri alphabétique croissant
+        const listProduct = await Product.find().populate('category', 'name').sort({ brand: 1 }); // tri alphabétique croissant
 
         res.status(200).json({msg:"la liste des produits :", listProduct})
     } catch (error) {
@@ -24,7 +24,7 @@ exports.getAllProd = async(req,res) => {
 exports.getOneProduct= async(req,res) => {
     try {
         const {id} = req.params;
-        const ProdToGet = await Product.findById(id);
+        const ProdToGet = await Product.findById(id).populate('category', 'name');
         if(!ProdToGet) {
             return res.status(404).json({msg:"Produit non trouvé"})
         }
@@ -40,7 +40,7 @@ exports.getOneProduct= async(req,res) => {
 exports.myProduct= async(req,res) => {
     try {
         
-        const myProdList = await Product.find({addedBy:req.user._id});
+        const myProdList = await Product.find({addedBy:req.user._id}).populate('category','name');
         res.status(200).json({msg:"la liste de mes produits :", myProdList})
 
     } catch (error) {

@@ -22,7 +22,7 @@ const NavBar = () => {
               <>
                 <Nav.Link as={NavLink} to="/profile">Profil</Nav.Link>
                 <Nav.Link as={NavLink} to="/panier">Panier</Nav.Link>
-                <Nav.Link as={NavLink} to="/logout" onClick={() => dispatch(logout(navigate))}>Logout</Nav.Link>
+                <Nav.Link as={NavLink} to="/" onClick={() => dispatch(logout(navigate))}>Logout</Nav.Link>
 
               </>
             ) : (
@@ -31,6 +31,7 @@ const NavBar = () => {
                 <Nav.Link as={NavLink} to="/register">Register</Nav.Link>
               </>
             )}
+            <Nav.Link as={NavLink} to="/categories">Catégories</Nav.Link>
             {user.isAdmin && (
               <Nav.Link  as={NavLink} to="/admin">Dashboard Admin</Nav.Link>
             )}

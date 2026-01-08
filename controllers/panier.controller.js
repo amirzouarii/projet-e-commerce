@@ -63,7 +63,8 @@ exports.clearPanier = async (req, res) => {
     console.log("User dans clearPanier:", req.user);  // <-- Ajouté pour debug
     const userId = req.user.id;
 
-    const panier = await Panier.findOne({ user: userId });
+    // correction : rechercher par `addedBy` pour être cohérent avec le schéma
+    const panier = await Panier.findOne({ addedBy: userId });
     if (!panier) return res.status(404).json({ msg: "Panier introuvable" });
 
     panier.items = [];

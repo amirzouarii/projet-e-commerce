@@ -1,0 +1,9 @@
+// LOAD
+export const LOAD_CATEGORIES = "LOAD_CATEGORIES";
+
+// SUCCESS
+export const GET_CATEGORIES = "GET_CATEGORIES";
+export const ADD_CATEGORY = "ADD_CATEGORY";
+
+// FAIL
+export const FAIL_CATEGORIES = "FAIL_CATEGORIES";

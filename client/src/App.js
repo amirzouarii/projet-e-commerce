@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import ErrorToast from './components/ErrorToast';
 import DetailProd from './components/DetailProd';
 import Panier from './pages/Panier';
+import Categories from './pages/Categories';
 import Footer from './components/Footer';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
       <NavBar/>
       <Routes>
       <Route path='/' element={<Home />}/>
+      <Route path='/categories' element={<Categories />} />
       {/* route pour mentrer les details d'un produit  */}
       <Route path='/prod/:id' element={<DetailProd />} />
       {isAuth ? (
