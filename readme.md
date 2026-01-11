@@ -2,7 +2,7 @@
 
 **Description**
 
-Application e‑commerce full‑stack développée en **Node.js**, **Express** et **MongoDB** côté backend, et **React** + **Redux** côté frontend. Elle permet la gestion des utilisateurs (inscription/connexion), la gestion des produits (CRUD pour les administrateurs), l'ajout et la gestion d'un panier, ainsi qu'un tableau de bord admin pour l'analyse basique (BI).
+Application e‑commerce full‑stack développée en **Node.js**, **Express** et **MongoDB** côté backend, et **React** + **Redux** côté frontend. Elle permet la gestion des utilisateurs (inscription/connexion), la gestion des produits (CRUD pour les administrateurs), l'ajout et la gestion d'un panier
 
 **Fonctionnalités principales**
 
@@ -67,20 +67,6 @@ Le client tourne par défaut sur `http://localhost:3000` et l'API sur le port d�
 
 ---
 
-## 📝 Contribution
 
-Les contributions sont les bienvenues : ouvrez une issue pour discuter d'un changement ou soumettez une pull request. Merci d'ajouter des tests et une documentation pour les nouvelles fonctionnalités.
 
----
 
-## 📄 Licence
-
-*Licence: ISC*
-
----
-
-Si vous souhaitez, je peux :
-- Ajouter des badges (build, coverage),
-- Documenter les endpoints (OpenAPI / Postman),
-- Ajouter des scripts de migration ou d'initialisation (seed),
-- Ou adapter le README à un template précis (ex: README plus concis ou orienté développeur). Dites-moi ce que vous préférez !
